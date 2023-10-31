@@ -17,7 +17,8 @@ class Game:
         self.map_seed = 11111
         self.map = self.create_map()
         self.map_color = (0, 128, 0)
-
+    
+    # creates tileset from game tilesheet 
     def create_tileset(self):
         tileset = tcod.tileset.load_tilesheet(
             self.tileset_path,
@@ -28,11 +29,13 @@ class Game:
         tcod.tileset.procedural_block_elements(tileset=tileset)
         return tileset
 
+    # creates a console using the game parameters
     def create_console(self):
         # create new console
         console = tcod.console.Console(self.screen_width, self.screen_height, order="F")
         return console
 
+    # generate map data layer
     def create_map(self):
         random.seed(self.map_seed)
         new_map = []
@@ -48,7 +51,8 @@ class Game:
                     new_map_row.append(Tile(block_move=False, block_sight=False, tile_char="."))
             new_map.append(new_map_row)
         return new_map
-
+    
+    # render map data layer to console
     def render_map(self, console: tcod.console.Console):
         for y_coord in range(self.screen_height):
             for x_coord in range(self.screen_width):
