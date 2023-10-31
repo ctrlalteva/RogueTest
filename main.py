@@ -36,7 +36,7 @@ def main():
                 obj.clear(root_console)
             
             # update console to show state
-            game.draw_map(root_console)
+            game.render_map(root_console)
 
             # draw all objects on console
             for obj in objects:

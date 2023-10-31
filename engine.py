@@ -36,23 +36,31 @@ class Game:
     def create_map(self):
         random.seed(self.map_seed)
         new_map = []
-        for y_coord in range(0, self.screen_height):
-            new_row = []
-            for x_coord in range(0, self.screen_width):
+        for y_coord in range(self.screen_height):
+            new_map_row = []
+            for x_coord in range(self.screen_width):
                 cell_chance = random.random()
-                if cell_chance < 0.025:
-                    new_row.append("+")
-                elif cell_chance < 0.05:
-                    new_row.append("o")
+                if cell_chance < 0.05:
+                    new_map_row.append(Tile(block_move=True, block_sight=True, tile_char="o"))
+                elif cell_chance < 0.1:
+                    new_map_row.append(Tile(block_move=True, block_sight=False, tile_char="+"))
                 else:
-                    new_row.append(".")
-            new_map.append(new_row)
+                    new_map_row.append(Tile(block_move=False, block_sight=False, tile_char="."))
+            new_map.append(new_map_row)
         return new_map
 
-    def draw_map(self, console: tcod.console.Console):
-        for y_coord in range(0, self.screen_height):
-            for x_coord in range(0, self.screen_width):
-                    console.print(x_coord, y_coord, self.map[y_coord][x_coord], self.map_color)
+    def render_map(self, console: tcod.console.Console):
+        for y_coord in range(self.screen_height):
+            for x_coord in range(self.screen_width):
+                    current_tile = self.map[y_coord][x_coord]
+                    console.print(x_coord, y_coord, current_tile.tile_char, fg=self.map_color, bg=None)
+
+
+class Tile:
+    def __init__(self, block_move: bool, block_sight: bool, tile_char: str):
+        self.block_move = block_move
+        self.block_sight = block_sight
+        self.tile_char = tile_char
 
 
 class GameObject:
