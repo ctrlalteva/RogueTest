@@ -1,8 +1,7 @@
 import tcod
 
-from engine import Game
+from engine import Game, GameObject
 from event_handler import EventHandler
-from player_state import PlayerState
 
 
 def main():
@@ -13,35 +12,38 @@ def main():
         tileset_path="data/Alloy_curses_12x12.png"
     )
     tileset = game.tileset
-    console = game.console
-
-    # create player state
-    player_state = PlayerState(
-        player_x=console.width // 2,
-        player_y=console.height // 2
-    )
-
-    # create event handler
-    event_handler = EventHandler(player_state)
+    root_console = game.console
 
     # create new window and manage context
     with tcod.context.new(
         tileset=tileset,
-        console=console,
+        console=root_console,
         title="Rogue Test",
         vsync=True
     ) as context:
+        # set up player and npcs
+        player = GameObject(root_console.width // 2, root_console.height //2, '@', (255, 255, 255))
+        npc = GameObject(root_console.width // 2 - 5, root_console.height //2, '@', (255, 255, 0))
+        objects = [npc, player]
+
+        # create event handler
+        event_handler = EventHandler(player)
+        
         # start main game loop
         while True:
             # reset console for update step
-            console.clear()
-
+            for obj in objects:
+                obj.clear(root_console)
+            
             # update console to show state
-            game.draw_map(console)
-            player_state.on_draw(console)
+            game.draw_map(root_console)
+
+            # draw all objects on console
+            for obj in objects:
+                obj.draw(root_console)
 
             # render the console to the window
-            context.present(console)
+            context.present(root_console)
 
             # wait for events to handle them
             for event in tcod.event.wait():
