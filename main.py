@@ -22,8 +22,8 @@ def main():
         vsync=True
     ) as context:
         # set up player and npcs
-        player = GameObject(root_console.width // 2, root_console.height //2, '@', (255, 255, 255))
-        npc = GameObject(root_console.width // 2 - 5, root_console.height //2, '@', (255, 255, 0))
+        player = GameObject(root_console.width // 2, root_console.height //2, '@', (255, 255, 255), game.map)
+        npc = GameObject(root_console.width // 2 - 5, root_console.height //2, '@', (255, 255, 0), game.map)
         objects = [npc, player]
 
         # create event handler

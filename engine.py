@@ -69,22 +69,27 @@ class GameObject:
         obj_x: int,
         obj_y: int,
         char: str,
-        color: tuple
+        color: tuple,
+        current_map: list
     ):
         self.obj_x = obj_x
         self.obj_y = obj_y
         self.char = char
         self.color = color
+        self.current_map = current_map
     
-    def move(self, dx, dy):
-        #move by the given amount
-        self.obj_x += dx
-        self.obj_y += dy
-    
+    # move object
+    def move(self, dx: int, dy: int):
+            target_tile = self.current_map[self.obj_y + dy][self.obj_x + dx]
+            if not target_tile.block_move:
+                self.obj_x += dx
+                self.obj_y += dy
+
+    # draw object char on console    
     def draw(self, target_console: tcod.console.Console):
-        #draw the character that represents this object at its position
         target_console.print(x=self.obj_x, y=self.obj_y, string=self.char, fg=self.color)
 
+    # make object invisible
     def clear(self, target_console: tcod.console.Console):
         #erase the character that represents this object
         target_console.print(x=self.obj_x, y=self.obj_y, string=" ", fg=self.color, bg=None)
