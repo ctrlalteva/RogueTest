@@ -46,9 +46,11 @@ class Map:
     def set_map_seed(self):
         self.map_seed = random.seed()
 
+    # create noise map for map tile data
     def create_noise_map(self):
         noise = tcod.noise.Noise(dimensions=2, seed=self.map_seed)
         noise_grid = noise[tcod.noise.grid(shape=(self.screen_width, self.screen_height), scale=0.25, indexing="ij")]
+        noise_grid = (noise_grid + 1.0) * 0.5
         return noise_grid
             
     # generate map data layer
@@ -59,9 +61,9 @@ class Map:
             new_map_row = []
             for x_coord in range(self.screen_width):
                 cell_value = noise_grid[x_coord, y_coord]
-                if cell_value < 0.05:
+                if cell_value < 0.4:
                     new_map_row.append(Tile(block_move=True, block_sight=True, tile_char="o"))
-                elif cell_value < 0.1:
+                elif cell_value < 0.2:
                     new_map_row.append(Tile(block_move=True, block_sight=False, tile_char="+"))
                 else:
                     new_map_row.append(Tile(block_move=False, block_sight=False, tile_char="."))
@@ -100,6 +102,11 @@ class GameObject:
     
     # move object
     def move(self, dx: int, dy: int):
+        if self.obj_x + dx < 0 or self.obj_x + dx >= len(self.map_data[0]):
+            return
+        if self.obj_y + dy < 0 or self.obj_y + dy >= len(self.map_data):
+            return
+        
         target_tile = self.map_data[self.obj_y + dy][self.obj_x + dx]
         if not target_tile.block_move:
             self.obj_x += dx
