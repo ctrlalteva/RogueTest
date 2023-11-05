@@ -13,6 +13,8 @@ def main():
     )
     tileset = game.tileset
     root_console = game.console
+    game_map = game.map
+    game_map.set_map_seed()
 
     # create new window and manage context
     with tcod.context.new(
@@ -22,8 +24,8 @@ def main():
         vsync=True
     ) as context:
         # set up player and npcs
-        player = GameObject(root_console.width // 2, root_console.height //2, '@', (255, 255, 255), game.map)
-        npc = GameObject(root_console.width // 2 - 5, root_console.height //2, '@', (255, 255, 0), game.map)
+        player = GameObject(root_console.width // 2, root_console.height //2, '@', (255, 255, 255), game_map.map_data)
+        npc = GameObject(root_console.width // 2 - 5, root_console.height //2, '@', (255, 255, 0), game_map.map_data)
         objects = [npc, player]
 
         # create event handler
@@ -36,7 +38,7 @@ def main():
                 obj.clear(root_console)
             
             # update console to show state
-            game.render_map(root_console)
+            game.map.render_map(root_console)
 
             # draw all objects on console
             for obj in objects:

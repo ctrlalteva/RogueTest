@@ -14,9 +14,7 @@ class Game:
         self.tileset_path = tileset_path
         self.tileset = self.create_tileset()
         self.console = self.create_console()
-        self.map_seed = 11111
-        self.map = self.create_map()
-        self.map_color = (0, 128, 0)
+        self.map = Map(screen_width, screen_height)
     
     # creates tileset from game tilesheet 
     def create_tileset(self):
@@ -35,17 +33,35 @@ class Game:
         console = tcod.console.Console(self.screen_width, self.screen_height, order="F")
         return console
 
+
+class Map:
+    def __init__(self, screen_width: int, screen_height: int):
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.map_seed = self.set_map_seed()
+        self.map_color = (0, 128, 0)
+        self.map_data = self.create_map_data()
+
+    # set seed based on system time
+    def set_map_seed(self):
+        self.map_seed = random.seed()
+
+    def create_noise_map(self):
+        noise = tcod.noise.Noise(dimensions=2, seed=self.map_seed)
+        noise_grid = noise[tcod.noise.grid(shape=(self.screen_width, self.screen_height), scale=0.25, indexing="ij")]
+        return noise_grid
+            
     # generate map data layer
-    def create_map(self):
-        random.seed(self.map_seed)
+    def create_map_data(self):
+        noise_grid = self.create_noise_map()
         new_map = []
         for y_coord in range(self.screen_height):
             new_map_row = []
             for x_coord in range(self.screen_width):
-                cell_chance = random.random()
-                if cell_chance < 0.05:
+                cell_value = noise_grid[x_coord, y_coord]
+                if cell_value < 0.05:
                     new_map_row.append(Tile(block_move=True, block_sight=True, tile_char="o"))
-                elif cell_chance < 0.1:
+                elif cell_value < 0.1:
                     new_map_row.append(Tile(block_move=True, block_sight=False, tile_char="+"))
                 else:
                     new_map_row.append(Tile(block_move=False, block_sight=False, tile_char="."))
@@ -56,7 +72,7 @@ class Game:
     def render_map(self, console: tcod.console.Console):
         for y_coord in range(self.screen_height):
             for x_coord in range(self.screen_width):
-                    current_tile = self.map[y_coord][x_coord]
+                    current_tile = self.map_data[y_coord][x_coord]
                     console.print(x_coord, y_coord, current_tile.tile_char, fg=self.map_color, bg=None)
 
 
@@ -74,20 +90,20 @@ class GameObject:
         obj_y: int,
         char: str,
         color: tuple,
-        current_map: list
+        map_data: list
     ):
         self.obj_x = obj_x
         self.obj_y = obj_y
         self.char = char
         self.color = color
-        self.current_map = current_map
+        self.map_data = map_data
     
     # move object
     def move(self, dx: int, dy: int):
-            target_tile = self.current_map[self.obj_y + dy][self.obj_x + dx]
-            if not target_tile.block_move:
-                self.obj_x += dx
-                self.obj_y += dy
+        target_tile = self.map_data[self.obj_y + dy][self.obj_x + dx]
+        if not target_tile.block_move:
+            self.obj_x += dx
+            self.obj_y += dy
 
     # draw object char on console    
     def draw(self, target_console: tcod.console.Console):
